@@ -40,3 +40,35 @@ def fix_outliers(
     # Removing the outliers
     _df = df[(df[feature] > lower_limit) & (df[feature] < upper_limit)]
     return (df.shape[0] - _df.shape[0], _df)
+
+
+def reduce_dimension_seniority(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Reduce the number of dimensions in the 'Seniority level'
+    column to intepretable seniority levels that are more general"""
+    _remap = {}
+    _df = dataframe.copy()
+    for col in _df["Seniority level"].unique():
+        match col:
+            case "Head":
+                _remap[col] = "Lead"
+            case col if any(
+                [
+                    col in ["VP", "No level", "Director", "Key"],
+                    "manager" in str(col).lower(),
+                ]
+            ):
+                _remap[col] = "Manager"
+            case col if any(
+                [
+                    col in ["Principal", "No level "],
+                    "no idea" in str(col).lower(),
+                ]
+            ):
+                _remap[col] = "Senior"
+            case col if col in ["Entry level", "Intern"]:
+                _remap[col] = "Junior"
+    _df["Seniority level"].replace(
+        _remap.keys(), _remap.values(), inplace=True
+    )
+    return _df
+
