@@ -19,8 +19,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
 import pandas as pd
+from app.remaps import PL_REMAP
 from typing import Tuple
 
 
@@ -197,3 +197,13 @@ def sanitize_years_of_experience(dataframe: pd.DataFrame) -> pd.DataFrame:
     return _df
 
 
+def fill_missing_values(dataframe: pd.DataFrame) -> pd.DataFrame:
+    _df = dataframe.copy()
+    # Using the median to fill in the missing values:
+    _df["Position"] = _df["Position"].fillna("Other (Position)")
+    _df["Gender"] = _df["Gender"].fillna("Other (Gender)")
+    _df["Age"] = _df["Age"].fillna(_df["Age"].median())
+    _df["PL"] = _df["PL"].fillna("Other (PL)")
+    _df["Company size"] = _df["Company size"].fillna("1000+")
+    _df['PL'] = _df['PL'].replace(PL_REMAP)
+    return _df
