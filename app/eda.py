@@ -72,3 +72,108 @@ def reduce_dimension_seniority(dataframe: pd.DataFrame) -> pd.DataFrame:
     )
     return _df
 
+
+def reduce_dimension_position(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """Reduced the dimentionality of company positions"""
+    _remap = {}
+    _df = dataframe.copy()
+    for col in _df["Position"].unique():
+        match col:
+            case col if "lead" in str(col).lower():
+                _remap[col] = "Team Lead"
+            case col if "ios" in str(col).lower():
+                _remap[col] = "Mobile Developer"
+            case col if col in ["QA Engineer"] or "test" in (
+                c := str(col).lower()
+            ) or "qa" in c:
+                _remap[col] = "QA Engineer"
+            case col if col in [
+                "DatabEngineer",
+                "data engineer",
+                "Big Data Engineer",
+                "Senior Data Engineer",
+            ]:
+                _remap[col] = "Data Engineer"
+            case col if any(
+                [
+                    col
+                    in [
+                        "Stuttgart",
+                        "Recruiter",
+                        "Consultant",
+                        "Presales Engineer",
+                        "Researcher",
+                        "Localization producer",
+                        "Reporting Engineer",
+                        "agile master",
+                        "Banker",
+                        "Agile Coach",
+                        "Scrum Master",
+                        "Beikoch",
+                        "It Consulting",
+                        "Computational linguist",
+                        "Rentner",
+                        "Application Consultant",
+                        "Professor",
+                    ],
+                    "sales" in (c := str(col).lower()),
+                    "consult" in c,
+                    "agile" in c,
+                    "student" in c,
+                    "recruit" in c,
+                ]
+            ):
+                _remap[col] = "Other (Position)"
+            case col if col in [
+                "Fullstack Developer",
+                "IT Spezialist",
+                "Embedded Software Engineer",
+                "Sofware/Hardware Engineer",
+                "Software Engineer",
+                "Firmware Engineer",
+                "Hardware Engineer",
+            ] or "full" in (
+                c := str(col).lower()
+            ) or "java" in c or "data engineer" in c:
+                _remap[col] = "Software/Hardware Engineer"
+            case col if any(
+                [
+                    "head" in (c := str(col).lower()),
+                    "manage" in c,
+                    "scrum" in c,
+                    "cto" in c,
+                    "vp" in c,
+                    "director" in c,
+                ]
+            ):
+                _remap[col] = "Manager"
+            case col if "insights" in (
+                c := str(col).lower()
+            ) or "analyst" in c or "analytics" in c:
+                _remap[col] = "Data Analyst"
+            case col if col in [
+                "DevOps",
+                "SRE",
+                "DBA",
+                "Support Engineer",
+                "support engineer",
+            ] or any(
+                [
+                    "security" in (c := str(col).lower()),
+                    "roboti" in c,
+                    "sap" in c,
+                    "system" in c,
+                    "cloud" in c,
+                    "network" in c,
+                ]
+            ):
+                _remap[col] = "Infra"
+            case col if "archite" in str(col).lower():
+                _remap[col] = "Architect"
+            case col if col in ["Designer (UI/UX)", "Graphic Designer"]:
+                _remap[col] = "UI/UX"
+    _df["Position"].replace(
+        _remap.keys(), _remap.values(), inplace=True
+    )
+    return _df
+
