@@ -177,3 +177,23 @@ def reduce_dimension_position(dataframe: pd.DataFrame) -> pd.DataFrame:
     )
     return _df
 
+
+def sanitize_years_of_experience(dataframe: pd.DataFrame) -> pd.DataFrame:
+    _df = dataframe.copy()
+    for error, fix in (
+        ("6 (not as a data scientist, but as a lab scientist)", "6"),
+        ("less than year", "1"),
+        ("15, thereof 8 as CTO", "23"),
+        ("1 (as QA Engineer) / 11 in total", "12"),
+        ("1,5", "1.5"),
+        ("2,5", "2.5"),
+    ):
+        _df["Experience (Years)"] = _df["Experience (Years)"].replace(
+            to_replace=error, value=fix
+        )
+    _df["Experience (Years)"] = _df["Experience (Years)"].fillna(_df["Experience (Years)"].median())
+    # Convert everything to a float
+    _df["Experience (Years)"] = _df["Experience (Years)"].astype(float)
+    return _df
+
+
