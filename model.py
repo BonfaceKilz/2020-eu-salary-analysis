@@ -21,11 +21,11 @@
 
 import pandas as pd
 import numpy as np
+import funcy as func
 from sklearn.ensemble import RandomForestRegressor as Estimator
 from sklearn.model_selection import train_test_split
 from explainerdashboard import RegressionExplainer, ExplainerDashboard
 from typing import Any
-from funcy import rcompose, map, select, rpartial
 from app.remaps import COLUMNS_REMAP
 from app.remaps import PL_REMAP
 from app.eda import fill_missing_values
@@ -39,10 +39,10 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     _df = df.copy()
     _df.rename(columns=COLUMNS_REMAP, inplace=True)
     _df.rename(columns=PL_REMAP, inplace=True)
-    _, _df = fix_outliers(
-        dataframe=_df, feature="Salary (2020)", q1=0.25, q3=0.75, n=0.1
-    )
-    _df = rcompose(
+    _df = func.rcompose(
+        func.autocurry(fix_outliers)(feature="Salary (2020)",
+                                     q1=0.25, q3=0.75, n=0.1),
+        func.second,
         fill_missing_values,
         reduce_dimension_position,
         reduce_dimension_seniority,
@@ -66,8 +66,8 @@ def build_model(df: pd.DataFrame) -> Any:
     gender_df = pd.get_dummies(_df["Gender"])
     position_df = pd.get_dummies(_df["Position"])
     _df = pd.concat([_df, gender_df, position_df], axis=1)
-    x_vars = select(
-        rpartial(isinstance, str),
+    x_vars = func.select(
+        func.rpartial(isinstance, str),
         [
             "Age",
             "Female",
