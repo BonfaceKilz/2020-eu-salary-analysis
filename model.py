@@ -88,6 +88,9 @@ def build_model(df: pd.DataFrame) -> Any:
 
 
 if __name__ == "__main__":
+    from dash_bootstrap_components.themes import SKETCHY
     ExplainerDashboard(
-        build_model(clean_data(pd.read_csv("2020-eu-salary.csv")))
+        build_model(clean_data(pd.read_csv("2020-eu-salary.csv"))),
+        title="2020 EU Salary Analysis - Model Explainer",
+        bootstrap=SKETCHY
     ).run(port=8111)
