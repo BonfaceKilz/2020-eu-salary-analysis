@@ -90,4 +90,4 @@ def build_model(df: pd.DataFrame) -> Any:
 if __name__ == "__main__":
     ExplainerDashboard(
         build_model(clean_data(pd.read_csv("2020-eu-salary.csv")))
-    ).run()
+    ).run(port=8111)
